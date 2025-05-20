@@ -1,17 +1,34 @@
 # .github/workflows/main.yml
-
-name: Hello World Workflow
+name: Access Issue Information
 
 on:
-  push:
+  issues:
+    types: [opened, reopened]
 
 jobs:
-  say_hello:
+  access_issue_info:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Greeting Message
-        run: echo "Hello, world"
+      - name: Set Issue Environment Variables
+        run: |
+          echo "ISSUE_NUMBER=${{ github.event.issue.number }}" >> $GITHUB_ENV
+          echo "ISSUE_TITLE=${{ github.event.issue.title }}" >> $GITHUB_ENV
+          echo "ISSUE_BODY=${{ github.event.issue.body }}" >> $GITHUB_ENV
+          echo "ISSUE_ASSIGNEE=${{ join(github.event.issue.assignees.*.login, ', ') }}" >> $GITHUB_ENV
+          echo "ISSUE_LABELS=${{ join(github.event.issue.labels.*.name, ', ') }}" >> $GITHUB_ENV
 
+      - name: Print Issue Information
+        run: |
+          echo "Issue Number: ${ISSUE_NUMBER}"
+          echo "Issue Title: ${ISSUE_TITLE}"
+          echo "Issue Body: ${ISSUE_BODY}"
+          echo "Issue Assignee(s): ${ISSUE_ASSIGNEE}"
+          echo "Issue Labels: ${ISSUE_LABELS}"
+
+      - name: Fetch Issue Details via API
+        run: |
+          ISSUE_RESPONSE=$(curl -s https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER})
+          echo "Full Issue Information: $ISSUE_RESPONSE"
