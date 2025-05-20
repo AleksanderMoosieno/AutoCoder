@@ -1,39 +1,44 @@
-name: Access Issue Information
+name: Autocoder Bot Processing
 
 on:
   issues:
-    types: [opened, reopened]
+    types: [labeled]
 
 jobs:
-  access_issue_info:
+  process-autocoder:
     runs-on: ubuntu-latest
-
+    # Проверяем, что issue имеет метку autocoder-bot
+    if: contains(github.event.issue.labels.*.name, 'autocoder-bot')
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug Event
-        run: |
-          echo "Full event payload:"
-          echo "${{ toJSON(github.event) }}"
+      - name: Make script executable
+        run: chmod +x ./scripts/autocoder.sh
 
-      - name: Print Issue Information
+      - name: Generate Code with ChatGPT
+        id: generate_code
         env:
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
-          ISSUE_ASSIGNEES: ${{ join(github.event.issue.assignees.*.login, ', ') }}
-          ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
+          REPO_NAME: ${{ github.repository }}
         run: |
-          echo "=== Issue Details ==="
-          echo "Issue Number: ${ISSUE_NUMBER}"
-          echo "Issue Title: ${ISSUE_TITLE}"
-          echo "Issue Body: ${ISSUE_BODY}"
-          echo "Issue Assignees: ${ISSUE_ASSIGNEES}"
-          echo "Issue Labels: ${ISSUE_LABELS}"
-          
-          echo "=== API Response ==="
-          curl -s \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}" | jq .
+          ./scripts/autocoder.sh "$ISSUE_TITLE" "$ISSUE_BODY" "$REPO_NAME"
+          echo "Generated files:"
+          ls -R ./autocoder-artifact
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: autocoder-artifact
+          path: ./autocoder-artifact
+          retention-days: 1
+
+      - name: Display Generated Code
+        run: |
+          echo "Generated files structure:"
+          ls -R ./autocoder-artifact
+          echo ""
+          echo "File contents:"
+          find ./autocoder-artifact -type f -exec sh -c 'echo "\n=== {} ==="; cat {}' \;
