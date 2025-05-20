@@ -1,4 +1,4 @@
-name: Autocoder Bot Processor
+name: autocoder-bot
 
 on:
   issues:
