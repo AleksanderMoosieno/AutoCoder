@@ -7,28 +7,26 @@ on:
 jobs:
   access_issue_info:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-      
-    - name: Print Issue Information
-      env:
-        ISSUE_NUMBER: ${{ github.event.issue.number }}
-        ISSUE_TITLE: ${{ github.event.issue.title }}
-        ISSUE_BODY: ${{ github.event.issue.body }}
-        ISSUE_ASSIGNEE: ${{ join(github.event.issue.assignees.*.login, ', ') }}
-        ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
-      run: |
-        echo "Issue Number: $ISSUE_NUMBER"
-        echo "Issue Title: $ISSUE_TITLE"
-        echo "Issue Body: $ISSUE_BODY"
-        echo "Issue Assignee(s): $ISSUE_ASSIGNEE"
-        echo "Issue Labels: $ISSUE_LABELS"
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Fetch Issue Details via API
-      env:
-        ISSUE_NUMBER: ${{ github.event.issue.number }}
-      run: |
-        ISSUE_RESPONSE=$(curl -s https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER)
-        echo "Full Issue Information: $ISSUE_RESPONSE"
-
+      - name: Print Issue Information
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_ASSIGNEES: ${{ join(github.event.issue.assignees.*.login, ', ') }}
+          ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
+        run: |
+          echo "Issue Number: ${ISSUE_NUMBER}"
+          echo "Issue Title: ${ISSUE_TITLE}"
+          echo "Issue Body: ${ISSUE_BODY}"
+          echo "Issue Assignees: ${ISSUE_ASSIGNEES}"
+          echo "Issue Labels: ${ISSUE_LABELS}"
+          
+          # Additional API call example
+          echo "Fetching issue via API..."
+          ISSUE_RESPONSE=$(curl -s https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER})
+          echo "API Response: ${ISSUE_RESPONSE}"
