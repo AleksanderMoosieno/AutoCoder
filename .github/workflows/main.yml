@@ -1,52 +1,41 @@
-name: Autocoder Bot Processor
+name: AutoCoder Workflow
 
 on:
   issues:
     types: [opened, reopened, labeled]
 
 jobs:
-  process-issue:
+  generate_code:
     runs-on: ubuntu-latest
-    if: >
-      (github.event.action == 'labeled' && github.event.label.name == 'autocoder-bot') ||
-      (github.event.action == 'opened' && contains(github.event.issue.labels.*.name, 'autocoder-bot')) ||
-      (github.event.action == 'reopened' && contains(github.event.issue.labels.*.name, 'autocoder-bot'))
+    if: contains(github.event.issue.labels.*.name, 'autocoder-bot') # Check for the label at the job level
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-      - name: Debug label check
-        run: |
-          echo "Triggered by: ${{ github.event.action }}"
-          echo "Issue labels: ${{ toJSON(github.event.issue.labels.*.name) }}"
-          echo "Label added (if labeled event): ${{ github.event.label.name }}"
+      - name: Set permissions for script.sh
+        run: chmod +x ./scripts/script.sh
 
-      - name: Prepare environment
-        run: |
-          mkdir -p ./autocoder-artifact
-          chmod +x ./scripts/autocoder.sh
-
-      - name: Run autocoder script
+      - name: Generate Code with ChatGPT
+        id: generate_code
         env:
-          ISSUE_TITLE: ${{ github.event.issue.title }}
-          ISSUE_BODY: ${{ github.event.issue.body }}
-          ISSUE_LABELS: ${{ toJSON(github.event.issue.labels.*.name) }}
-          REPO_NAME: ${{ github.repository }}
-          EVENT_TYPE: ${{ github.event.action }}
-        run: |
-          ./scripts/autocoder.sh "$ISSUE_TITLE" "$ISSUE_BODY" "$REPO_NAME" "$ISSUE_LABELS" "$EVENT_TYPE"
-          echo "Generated files:"
-          ls -R ./autocoder-artifact
-
-      - name: Upload artifact
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use the GitHub token secret
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          REPOSITORY: ${{ github.repository }}  # The full repository name
+          ISSUE_NUMBER: ${{ github.event.issue.number }}  # The issue number
+        run: ./scripts/script.sh $GITHUB_TOKEN $REPOSITORY $ISSUE_NUMBER $OPENAI_API_KEY
+        
+      - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: autocoder-artifact
-          path: ./autocoder-artifact/
-          retention-days: 1
+          path: autocoder-bot/
 
-      - name: Display generated files
-        run: |
-          echo "=== Generated Files ==="
-          find ./autocoder-artifact -type f -exec echo "\n=== {} ===" \; -exec cat {} \;
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: autocoder-artifact
+          path: autocoder-artifact/
+
+      - name: List Generated Code Files
+        run: ls -R autocoder-artifact/
