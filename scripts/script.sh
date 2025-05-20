@@ -8,9 +8,9 @@ set -x
 
 # Get inputs from the environment
 GITHUB_TOKEN="$1"
-REPOSITORY="$2"
+REPOSITORY="AutoCoder"
 ISSUE_NUMBER="$3"
-OPENAI_API_KEY="$4"
+OPENAI_API_KEY="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"
 
 # Function to fetch issue details from GitHub API
 fetch_issue_details() {
