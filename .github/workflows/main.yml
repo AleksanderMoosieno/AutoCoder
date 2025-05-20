@@ -2,29 +2,38 @@ name: Autocoder Bot Processing
 
 on:
   issues:
-    types: [labeled]
+    types: [opened, reopened, labeled]
 
 jobs:
   process-autocoder:
     runs-on: ubuntu-latest
-    # Проверяем, что issue имеет метку autocoder-bot
-    if: contains(github.event.issue.labels.*.name, 'autocoder-bot')
+    # Only run if:
+    # 1. The issue has autocoder-bot label (for labeled events)
+    # OR
+    # 2. The issue is being opened/reopened with the label already present
+    if: |
+      contains(github.event.issue.labels.*.name, 'autocoder-bot') ||
+      github.event.action == 'opened' ||
+      github.event.action == 'reopened'
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Make script executable
-        run: chmod +x ./scripts/autocoder.sh
+        run: |
+          chmod +x ./scripts/autocoder.sh
+          mkdir -p ./autocoder-artifact
 
       - name: Generate Code with ChatGPT
         id: generate_code
         env:
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_LABELS: ${{ toJSON(github.event.issue.labels) }}
           REPO_NAME: ${{ github.repository }}
         run: |
-          ./scripts/autocoder.sh "$ISSUE_TITLE" "$ISSUE_BODY" "$REPO_NAME"
+          ./scripts/autocoder.sh "$ISSUE_TITLE" "$ISSUE_BODY" "$REPO_NAME" "$ISSUE_LABELS"
           echo "Generated files:"
           ls -R ./autocoder-artifact
 
@@ -32,13 +41,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: autocoder-artifact
-          path: ./autocoder-artifact
+          path: ./autocoder-artifact/
           retention-days: 1
 
-      - name: Display Generated Code
+      - name: Display Generated Files
         run: |
-          echo "Generated files structure:"
-          ls -R ./autocoder-artifact
-          echo ""
-          echo "File contents:"
-          find ./autocoder-artifact -type f -exec sh -c 'echo "\n=== {} ==="; cat {}' \;
+          echo "=== File Structure ==="
+          find ./autocoder-artifact -type d -exec echo "Directory: {}" \; -exec ls -la {} \;
+          echo "\n=== File Contents ==="
+          find ./autocoder-artifact -type f -exec echo "\nFile: {}" \; -exec cat {} \;
