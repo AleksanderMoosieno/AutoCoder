@@ -1,52 +1,54 @@
-name: Autocoder Bot Processing
+name: Autocoder Bot Processor
 
 on:
   issues:
     types: [opened, reopened, labeled]
 
 jobs:
-  process-autocoder:
+  process-issue:
     runs-on: ubuntu-latest
-    # Only run if:
-    # 1. The issue has autocoder-bot label (for labeled events)
-    # OR
-    # 2. The issue is being opened/reopened with the label already present
+    # Only run if the issue has the autocoder-bot label
     if: |
-      contains(github.event.issue.labels.*.name, 'autocoder-bot') ||
-      github.event.action == 'opened' ||
-      github.event.action == 'reopened'
+      (github.event.action == 'labeled' && github.event.label.name == 'autocoder-bot') ||
+      (github.event.action != 'labeled' && contains(github.event.issue.labels.*.name, 'autocoder-bot'))
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Make script executable
+      - name: Verify label
         run: |
-          chmod +x ./scripts/autocoder.sh
-          mkdir -p ./autocoder-artifact
+          echo "Event action: ${{ github.event.action }}"
+          echo "Issue labels: ${{ toJSON(github.event.issue.labels) }}"
+          echo "Label added (if labeled event): ${{ github.event.label.name }}"
 
-      - name: Generate Code with ChatGPT
-        id: generate_code
+      - name: Prepare environment
+        run: |
+          mkdir -p ./autocoder-artifact
+          chmod +x ./scripts/autocoder.sh
+
+      - name: Execute autocoder script
         env:
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_LABELS: ${{ toJSON(github.event.issue.labels) }}
           REPO_NAME: ${{ github.repository }}
+          EVENT_TYPE: ${{ github.event.action }}
         run: |
-          ./scripts/autocoder.sh "$ISSUE_TITLE" "$ISSUE_BODY" "$REPO_NAME" "$ISSUE_LABELS"
+          ./scripts/autocoder.sh "$ISSUE_TITLE" "$ISSUE_BODY" "$REPO_NAME" "$ISSUE_LABELS" "$EVENT_TYPE"
           echo "Generated files:"
           ls -R ./autocoder-artifact
 
-      - name: Upload Artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: autocoder-artifact
           path: ./autocoder-artifact/
           retention-days: 1
 
-      - name: Display Generated Files
+      - name: Display results
         run: |
-          echo "=== File Structure ==="
+          echo "=== Generated Files Structure ==="
           find ./autocoder-artifact -type d -exec echo "Directory: {}" \; -exec ls -la {} \;
           echo "\n=== File Contents ==="
-          find ./autocoder-artifact -type f -exec echo "\nFile: {}" \; -exec cat {} \;
+          find ./autocoder-artifact -type f -exec echo "\n=== {} ===" \; -exec cat {} \;
