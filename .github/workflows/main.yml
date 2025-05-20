@@ -24,4 +24,3 @@ jobs:
           REPOSITORY: ${{ github.repository }}  # The full repository name
           ISSUE_NUMBER: ${{ github.event.issue.number }}  # The issue number
         run: ./scripts/script.sh $GITHUB_TOKEN $REPOSITORY $ISSUE_NUMBER $OPENAI_API_KEY
-        
