@@ -12,6 +12,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Debug Event
+        run: |
+          echo "Full event payload:"
+          echo "${{ toJSON(github.event) }}"
+
       - name: Print Issue Information
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
@@ -20,13 +25,15 @@ jobs:
           ISSUE_ASSIGNEES: ${{ join(github.event.issue.assignees.*.login, ', ') }}
           ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
         run: |
+          echo "=== Issue Details ==="
           echo "Issue Number: ${ISSUE_NUMBER}"
           echo "Issue Title: ${ISSUE_TITLE}"
           echo "Issue Body: ${ISSUE_BODY}"
           echo "Issue Assignees: ${ISSUE_ASSIGNEES}"
           echo "Issue Labels: ${ISSUE_LABELS}"
           
-          # Additional API call example
-          echo "Fetching issue via API..."
-          ISSUE_RESPONSE=$(curl -s https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER})
-          echo "API Response: ${ISSUE_RESPONSE}"
+          echo "=== API Response ==="
+          curl -s \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}" | jq .
