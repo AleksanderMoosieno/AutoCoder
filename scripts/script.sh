@@ -6,7 +6,7 @@ set -e
 # Debugging output
 echo "GITHUB_TOKEN: $1"
 echo "REPOSITORY: AutoCoder"
-echo "ISSUE_NUMBER: 3"
+echo "ISSUE_NUMBER: $3"
 echo "OPENAI_API_KEY: $4"
 
 # Get inputs from the environment
