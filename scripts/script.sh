@@ -5,14 +5,14 @@ set -e
 
 # Debugging output
 echo "GITHUB_TOKEN: $1"
-echo "REPOSITORY: $2"
-echo "ISSUE_NUMBER: $3"
+echo "REPOSITORY: AutoCoder"
+echo "ISSUE_NUMBER: 3"
 echo "OPENAI_API_KEY: $4"
 
 # Get inputs from the environment
 GITHUB_TOKEN="$1"
-REPOSITORY="$2"
-ISSUE_NUMBER="$3"
+REPOSITORY="AutoCoder"
+ISSUE_NUMBER="3"
 OPENAI_API_KEY="$4"
 
 # Function to fetch issue details from GitHub API
