@@ -2,46 +2,52 @@ name: Generate Code with ChatGPT
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened, reopened, labeled]
 
 jobs:
   generate_code:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+      - name: Set permissions for script.sh
+        run: chmod +x scripts/script.sh
 
-      - name: Make script executable
-        run: chmod +x ./script.sh
+      - name: Check if issue has 'autocoder-bot' label
+        id: check_label
+        run: |
+          labels=$(echo '${{ toJson(github.event.issue.labels) }}' | jq -r '.[] | .name')
+          if echo "$labels" | grep -q 'autocoder-bot'; then
+            echo "has_label=true" >> $GITHUB_ENV
+          else
+            echo "has_label=false" >> $GITHUB_ENV
+          fi
 
-      - name: Generate Code with ChatGPT
-        id: generate_code
+      - name: Run script.sh
+        if: env.has_label == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          REPOSITORY: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-          REPO_NAME: ${{ github.repository }}
-        run: ./script.sh ${{ env.ISSUE_NUMBER }} ${{ env.REPO_NAME }} ${{ env.GITHUB_TOKEN }} ${{ env.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: ./scripts/script.sh $GITHUB_TOKEN $REPOSITORY $ISSUE_NUMBER $OPENAI_API_KEY
 
-      - name: Upload Artifact
+      - name: Upload generated files as artifacts
+        if: env.has_label == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: autocoder-artifact
-          path: autocoder-bot/
+          path: ./autocoder-bot
 
-      - name: Download Artifact
+      - name: Download artifacts
+        if: env.has_label == 'true'
         uses: actions/download-artifact@v3
         with:
           name: autocoder-artifact
-          path: autocoder-artifact/
+          path: ./autocoder-artifact
 
-      - name: Display Generated Code
-        run: |
-          echo "Listing generated files:"
-          ls -R autocoder-artifact/
-
+      - name: List files in artifact
+        if: env.has_label == 'true'
+        run: ls -R ./autocoder-artifact
