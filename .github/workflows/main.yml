@@ -1,10 +1,47 @@
-name: AutoCoder Workflow
+
+name: Access Issue Information and Generate Code
 
 on:
   issues:
     types: [opened, reopened, labeled]
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
-  generate_code:
+  process_issue:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, 'autocoder-bot') # Check for the label at the job level
+    if: contains(github.event.issue.labels.*.name, 'autocoder-bot')
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Make Script Executable
+        run: chmod +x ./scripts/script.sh
+
+      - name: Generate Code with ChatGPT
+        id: generate_code
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: ./scripts/script.sh $ISSUE_NUMBER $REPO $OPENAI_API_KEY
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: autocoder-artifact
+          path: autocoder-artifact/
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: autocoder-artifact
+          path: autocoder-artifact
+
+      - name: List Files Recursively
+        run: |
+          echo "Listing all files in autocoder-artifact directory:"
+          ls -R autocoder-artifact/
