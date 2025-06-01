@@ -1,47 +1,48 @@
-
-name: Access Issue Information and Generate Code
+name: AutoCoder Workflow
 
 on:
   issues:
-    types: [opened, reopened, labeled]
-
-permissions:
-  contents: read
-  actions: write
+    types: [opened, labeled]
 
 jobs:
-  process_issue:
+  generate_code:
+    if: ${{ github.event.issue.labels.*.name == 'autocoder-bot' }}
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, 'autocoder-bot')
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Make Script Executable
-        run: chmod +x ./scripts/script.sh
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Make script executable
+        run: chmod +x ./script.sh
 
       - name: Generate Code with ChatGPT
         id: generate_code
         env:
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: ./scripts/script.sh $ISSUE_NUMBER $REPO $OPENAI_API_KEY
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO_NAME: ${{ github.repository }}
+        run: ./script.sh ${{ env.ISSUE_NUMBER }} ${{ env.REPO_NAME }} ${{ env.GITHUB_TOKEN }} ${{ env.OPENAI_API_KEY }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: autocoder-artifact
-          path: autocoder-artifact/
+          path: autocoder-bot/
 
       - name: Download Artifact
         uses: actions/download-artifact@v3
         with:
           name: autocoder-artifact
-          path: autocoder-artifact
+          path: autocoder-artifact/
 
-      - name: List Files Recursively
+      - name: Display Generated Code
         run: |
-          echo "Listing all files in autocoder-artifact directory:"
+          echo "Listing generated files:"
           ls -R autocoder-artifact/
+
