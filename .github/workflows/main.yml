@@ -1,5 +1,4 @@
-name: Generate Code with ChatGPT
-
+name: Autocoder Bot Workflow
 
 on:
   issues:
