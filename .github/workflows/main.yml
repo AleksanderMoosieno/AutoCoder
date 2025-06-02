@@ -1,23 +1,25 @@
 name: Access Issue Information
 on:
   issues:
-    types: [opened, reopened, labeled]
-env: 
-  GITHUB_TOKEN: ${{ vars.GITHUB_TOKEN }}
-  REPOSITORY: ${{ github.repository }}
-  ISSUE_NUMBER: ${{ github.event.issue.number }}
-  CHAT_GPT_API: ${{ vars.OPENAI_API_KEY }}
-  ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
+    types:
+      - opened
+      - reopened
 jobs:
-  asking_chat_bot:
+  access_issue_info:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, 'autocoder-bot')
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        run: |
-          echo "TOk GIT: ${GITHUB_TOKEN}"
-          echo "Issue Title: ${REPOSITORY}"
-          echo "NUM: ${ISSUE_NUMBER}"
-          echo "TOK: ${CHAT_GPT_API}"
-          echo "Issue Labels: ${ISSUE_LABELS}"
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    - name: Print Issue Information     
+      env:
+        GITHUB_TOKEN: ${{ vars.GITHUB_TOKEN }}
+        REPOSITORY: ${{ github.repository }}
+        ISSUE_NUMBER: ${{ github.event.issue.number }}
+        CHAT_GPT_API: ${{ vars.OPENAI_API_KEY }}
+        ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
+      run: |
+        GITHUB_TOKEN: ${{ vars.GITHUB_TOKEN }}
+        REPOSITORY: ${{ github.repository }}
+        ISSUE_NUMBER: ${{ github.event.issue.number }}
+        CHAT_GPT_API: ${{ vars.OPENAI_API_KEY }}
+        ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
