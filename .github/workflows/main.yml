@@ -12,14 +12,14 @@ jobs:
       uses: actions/checkout@v4
     - name: Print Issue Information     
       env:
-        GITHUB_TOKEN: ${{ vars.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REPOSITORY: ${{ github.repository }}
         ISSUE_NUMBER: ${{ github.event.issue.number }}
-        CHAT_GPT_API: ${{ vars.OPENAI_API_KEY }}
+        CHAT_GPT_API: ${{ secrets.OPENAI_API_KEY }}
         ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
       run: |
-        GITHUB_TOKEN: ${{ vars.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REPOSITORY: ${{ github.repository }}
         ISSUE_NUMBER: ${{ github.event.issue.number }}
-        CHAT_GPT_API: ${{ vars.OPENAI_API_KEY }}
+        CHAT_GPT_API: ${{ secrets.OPENAI_API_KEY }}
         ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
