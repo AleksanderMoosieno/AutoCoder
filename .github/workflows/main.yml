@@ -15,26 +15,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      
-      - name: Set permissions X
-        run: chmod +x scripts/script.sh
-
-      - name: Creating yml
-        run: ./scripts/script.sh ${GITHUB_TOKEN}, ${REPOSITORY}, ${ISSUE_NUMBER}, ${CHAT_GPT_API} # > output.txt
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: autocoder-artifact
-          path: |
-            *
-
-
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: autocoder-artifact
-          path: ./autocoder-artifact
-
-      - name: List 
-        run: ls -R ./autocoder-artifact
+        run: |
+          echo "TOk GIT: ${GITHUB_TOKEN}"
+          echo "Issue Title: ${REPOSITORY}"
+          echo "NUM: ${ISSUE_NUMBER}"
+          echo "TOK: ${CHAT_GPT_API}"
+          echo "Issue Labels: ${ISSUE_LABELS}"
