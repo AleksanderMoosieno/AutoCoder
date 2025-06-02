@@ -3,6 +3,10 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+# log every command
+set -x
+
+
 # Get inputs from the environment
 GITHUB_TOKEN="$1"
 REPOSITORY="$2"
