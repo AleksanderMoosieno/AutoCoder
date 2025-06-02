@@ -15,7 +15,7 @@ jobs:
         GITHUB_TOKEN: ${{ vars.TOKEN }}
         REPOSITORY: ${{ github.repository }}
         ISSUE_NUMBER: ${{ github.event.issue.number }}
-        OPENAI_API_KEY: ${{ OPENAI_API_KEY.vars.OPENAI_API_KEY }}
+        OPENAI_API_KEY: ${{ env.vars.OPENAI_API_KEY }}
         ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
       run: |
         env
