@@ -1,27 +1,40 @@
-name: CI
-
+name: Access Issue Information
 on:
   issues:
     types: [opened, reopened, labeled]
-  workflow_dispatch:
-
-permissions:
-  contents: write
-  pull-requests: write
-
+env: 
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  REPOSITORY: ${{ github.repository }}
+  ISSUE_NUMBER: ${{ github.event.issue.number }}
+  CHAT_GPT_API: ${{ secrets.OPENAI_API_KEY }}
+  ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
 jobs:
-  build:
-    if: contains(github.event.issue.labels.*.name, 'autocoder-bot')
+  asking_chat_bot:
     runs-on: ubuntu-latest
-
+    if: contains(github.event.issue.labels.*.name, 'autocoder-bot')
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Set permissions X
+        run: chmod +x scripts/script.sh
 
-      - name: Generate Code with ChatGPT
-        id: generate_code
-        uses: AleksanderMoosieno/AutoCoder@main
+      - name: Creating yml
+        run: ./scripts/script.sh ${GITHUB_TOKEN}, ${REPOSITORY}, ${ISSUE_NUMBER}, ${CHAT_GPT_API} # > output.txt
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPOSITORY: ${{ github.repository }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          name: autocoder-artifact
+          path: |
+            *
+
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: autocoder-artifact
+          path: ./autocoder-artifact
+
+      - name: List 
+        run: ls -R ./autocoder-artifact
