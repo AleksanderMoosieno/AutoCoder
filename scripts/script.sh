@@ -3,24 +3,20 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Debugging output
-echo "GITHUB_TOKEN: $1"
-echo "REPOSITORY: AutoCoder"
-echo "ISSUE_NUMBER: $3"
-echo "OPENAI_API_KEY: $4"
-
 # Get inputs from the environment
 GITHUB_TOKEN="$1"
-REPOSITORY="AutoCoder"
-ISSUE_NUMBER="3"
+REPOSITORY="$2"
+ISSUE_NUMBER="$3"
 OPENAI_API_KEY="$4"
 
 # Function to fetch issue details from GitHub API
 fetch_issue_details() {
-    echo "Fetching issue details..."
     curl -s -H "Authorization: token $GITHUB_TOKEN" \
          "https://api.github.com/repos/$REPOSITORY/issues/$ISSUE_NUMBER"
 }
+
+
+
 
 # Function to send prompt to the ChatGPT model (Grock API)
 send_prompt_to_chatgpt() {
@@ -39,10 +35,18 @@ save_to_file() {
     echo -e "$code_snippet" > "$filename"
     echo "The code has been written to $filename"
 }
+save_to_file() {
+    #  the script will save the code snippets to files in a directory named "autocoder-bot" with the filename specified in the JSON object.
+    local filename="autocoder-bot/$1"
+    local code_snippet="$2"
+
+    mkdir -p "$(dirname "$filename")"
+    echo -e "$code_snippet" > "$filename"
+    echo "The code has been written to $filename"
+}
 
 # Fetch and process issue details
 RESPONSE=$(fetch_issue_details)
-echo "Fetch Issue Response: $RESPONSE"
 ISSUE_BODY=$(echo "$RESPONSE" | jq -r .body)
 
 if [[ -z "$ISSUE_BODY" ]]; then
@@ -58,11 +62,9 @@ FULL_PROMPT="$INSTRUCTIONS\n\n$ISSUE_BODY"
 
 # Prepare the messages array for the ChatGPT API, including the instructions
 MESSAGES_JSON=$(jq -n --arg body "$FULL_PROMPT" '[{"role": "user", "content": $body}]')
-echo "Messages JSON: $MESSAGES_JSON"
 
 # Send the prompt to the ChatGPT model
 RESPONSE=$(send_prompt_to_chatgpt)
-echo "ChatGPT Response: $RESPONSE"
 
 if [[ -z "$RESPONSE" ]]; then
     echo "No response received from the OpenAI API."
@@ -70,6 +72,7 @@ if [[ -z "$RESPONSE" ]]; then
 fi
 
 # Extract the JSON dictionary from the response
+# Make sure that the extracted content is valid JSON
 FILES_JSON=$(echo "$RESPONSE" | jq -e '.choices[0].message.content | fromjson' 2> /dev/null)
 
 if [[ -z "$FILES_JSON" ]]; then
@@ -85,4 +88,4 @@ for key in $(echo "$FILES_JSON" | jq -r 'keys[]'); do
     save_to_file "$FILENAME" "$CODE_SNIPPET"
 done
 
-echo "All files have been processed successfully."
+echo "All files have been proces."
