@@ -14,7 +14,7 @@ jobs:
     if: contains(github.event.issue.labels.*.name, 'autocoder-bot')
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Set permissions X
         run: chmod +x scripts/script.sh
@@ -23,7 +23,7 @@ jobs:
         run: ./scripts/script.sh ${GITHUB_TOKEN}, ${REPOSITORY}, ${ISSUE_NUMBER}, ${CHAT_GPT_API} # > output.txt
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: autocoder-artifact
           path: |
@@ -31,7 +31,7 @@ jobs:
 
 
       - name: Download Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: autocoder-artifact
           path: ./autocoder-artifact
