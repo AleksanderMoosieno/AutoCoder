@@ -3,7 +3,7 @@ on:
   issues:
     types: [opened, reopened, labeled]
 env: 
-  GITHUB_TOKEN: ${{ secret.GITHUB_TOKEN.TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN.TOKEN }}
   REPOSITORY: ${{ github.repository }}
   ISSUE_NUMBER: ${{ github.event.issue.number }}
   CHAT_GPT_API: ${{ env.OPENAI_API_KEY }}
