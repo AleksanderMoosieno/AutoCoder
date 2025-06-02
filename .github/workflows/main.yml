@@ -18,8 +18,8 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
       run: |
-        echo "GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
-        echo "REPOSITORY: ${{ github.repository }}"
+        echo "GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}"
+        echo "REPOSITORY: ${{ env.REPOSITORY }}"
         echo "ISSUE_NUMBER: ${{ github.event.issue.number }}"
-        echo "OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}"
+        echo "OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}"
         echo "ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}"
