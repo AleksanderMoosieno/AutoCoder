@@ -1,24 +1,27 @@
 name: Access Issue Information
+
 on:
   issues:
     types:
       - opened
       - reopened
+
 jobs:
-  OPENAI_API_KEY:
+  process_issue:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-    - name: Print Issue Information     
-      env:
-        GITHUB_TOKEN: ${{ env.TOKEN }}
-        REPOSITORY: ${{ github.repository }}
-        ISSUE_NUMBER: ${{ github.event.issue.number }}
-        OPENAI_API_KEY: ${{ vars.NAME }}
-        ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
-      run: |
-        touch .env
-        echo API_KEY=${{ env.TOKEN }} >> .env
-        echo OPENAI_API_KEY=${{ vars.NAME }} >> .env
-        cat .env
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Print Issue Information
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          OPENAI_API_KEY: ${{ vars.NAME }}
+          ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
+        run: |
+          touch .env
+          echo "API_KEY=$GITHUB_TOKEN" >> .env
+          echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
+          cat .env
