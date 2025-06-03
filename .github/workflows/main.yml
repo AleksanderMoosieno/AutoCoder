@@ -5,10 +5,12 @@ on:
     types:
       - opened
       - reopened
+
 permissions:
   contents: read
   issues: write
   pull-requests: write
+
 jobs:
   process_issue:
     runs-on: ubuntu-latest
@@ -18,13 +20,22 @@ jobs:
         
       - name: Print Issue Information
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
           REPOSITORY: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-          OPENAI_API_KEY: ${{ vars.NAME }}
           ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
+          # Правильное обращение к секретам
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
+          echo "=== Environment variables ==="
+          echo "REPOSITORY: $REPOSITORY"
+          echo "ISSUE_NUMBER: $ISSUE_NUMBER"
+          echo "ISSUE_LABELS: $ISSUE_LABELS"
+          echo "OPENAI_API_KEY (length): ${#OPENAI_API_KEY}"  # Покажет длину строки (0 если пусто)
+          
           touch .env
-          echo "API_KEY=$GITHUB_TOKEN" >> .env
+          echo "GITHUB_REPO=$REPOSITORY" >> .env
+          echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> .env
           echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
+          
+          echo "=== .env file content ==="
           cat .env
