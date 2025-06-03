@@ -5,7 +5,7 @@ on:
       - opened
       - reopened
 jobs:
-  access_issue_info:
+  OPENAI_API_KEY:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
