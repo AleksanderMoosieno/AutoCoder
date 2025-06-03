@@ -24,7 +24,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
           # Правильное обращение к секретам
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.TK }}
         run: |
           echo "=== Environment variables ==="
           echo "REPOSITORY: $REPOSITORY"
