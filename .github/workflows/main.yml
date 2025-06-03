@@ -1,41 +1,41 @@
 name: Access Issue Information
-
 on:
   issues:
-    types:
-      - opened
-      - reopened
-
+    types: [opened, reopened, labeled]
 permissions:
   contents: read
   issues: write
   pull-requests: write
-
+env: 
+  GITHUB_TOKEN: ${{ secrets.TOKEN }}
+  REPOSITORY: ${{ github.repository }}
+  ISSUE_NUMBER: ${{ github.event.issue.number }}
+  CHAT_GPT_API: ${{ secrets.API }}
+  ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
 jobs:
-  process_issue:
+  asking_chat_bot:
     runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'autocoder-bot')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        
-      - name: Print Issue Information
-        env:
-          REPOSITORY: ${{ github.repository }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
-          # Правильное обращение к секретам
-          OPENAI_API_KEY: ${{ secrets.TK }}
-        run: |
-          echo "=== Environment variables ==="
-          echo "REPOSITORY: $REPOSITORY"
-          echo "ISSUE_NUMBER: $ISSUE_NUMBER"
-          echo "ISSUE_LABELS: $ISSUE_LABELS"
-          echo "OPENAI_API_KEY (length): ${#OPENAI_API_KEY}"  # Покажет длину строки (0 если пусто)
-          
-          touch .env
-          echo "GITHUB_REPO=$REPOSITORY" >> .env
-          echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> .env
-          echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
-          
-          echo "=== .env file content ==="
-          cat .env
+      
+      - name: Set permissions X
+        run: chmod +x scripts/script.sh
+
+      - name: Creating yml
+        run: ./scripts/script.sh ${GITHUB_TOKEN}, ${REPOSITORY}, ${ISSUE_NUMBER}, ${CHAT_GPT_API} # > output.txt
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: autocoder-artifact
+          path: |
+            *
+
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: autocoder-artifact
+          path: ./autocoder-artifact
