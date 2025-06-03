@@ -18,5 +18,7 @@ jobs:
         OPENAI_API_KEY: ${{ vars.NAME }}
         ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ', ') }}
       run: |
-        env
-        printenv
+        touch .env
+        echo API_KEY=${{ env.TOKEN }} >> .env
+        echo OPENAI_API_KEY=${{ vars.NAME }} >> .env
+        cat .env
