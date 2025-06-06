@@ -19,7 +19,7 @@ jobs:
 
       - name: Generate Code with ChatGPT
         id: generate_code
-        uses: PGSch/AutoCoder@main
+        uses: AleksanderMoosieno/AutoCoder@main
         with:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
           REPOSITORY: ${{ github.repository }}
