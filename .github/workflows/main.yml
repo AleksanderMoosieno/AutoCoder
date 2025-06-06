@@ -88,5 +88,5 @@ jobs:
         with:
           labels: "autocoder-bot"
           author: autocoder-bot <actions@github.com>
-          title: "PR to issue #${{ inputs.ISSUE_NUMBER }}"
-          branch: autocoder-branch-${{ inputs.ISSUE_NUMBER }}
+          title: "PR to issue #${{ env.ISSUE_NUMBER }}"
+          branch: autocoder-branch-${{ env.ISSUE_NUMBER }}
