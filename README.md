@@ -7,3 +7,22 @@ To use this action in your repository, include it in your GitHub workflow YAML f
 
 ## Example Workflow
 Go to .github/workflows/main.yml
+
+## Environment Variables
+You may need to set the following environment variables to use the action effectively:
+
+TOKEN: This should be set to ${{ secrets.TOKEN }}.
+API: The API key for accessing OpenAI’s ChatGPT, set to ${{ OPENAI_API }}.
+Required Permissions
+This action requires the following permissions to function properly:
+
+Contents: write
+Pull Requests: write
+
+Possible problems:
+
+We ran into a problem when creating a pull request.
+The reason was identified - the same names of the base and branch branches
+They suggested a solution - to use main as the base branch.
+We provided the corrected workflow code
+Added additional recommendations for checking the configuration
