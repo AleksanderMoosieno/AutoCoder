@@ -38,19 +38,19 @@ runs:
 
   steps:
     - name: Checkout Code
-        uses: actions/checkout@v4
+      uses: actions/checkout@v4
             
-      - name: Make Script Executable
-        run: chmod +x ./scripts/script.sh
+    - name: Make Script Executable
+      run: chmod +x ./scripts/script.sh
         
-      - name: Creating yml
-        run: ./scripts/script.sh ${GITHUB_TOKEN}, ${REPOSITORY}, ${ISSUE_NUMBER}, ${CHAT_GPT_API} # > output.txt
+    - name: Creating yml
+      run: ./scripts/script.sh ${GITHUB_TOKEN}, ${REPOSITORY}, ${ISSUE_NUMBER}, ${CHAT_GPT_API} # > output.txt
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: autocoder-artifact
-          path: |
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+      - name: autocoder-artifact
+        path: |
             *
 
       - name: Download Artifact
