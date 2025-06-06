@@ -53,52 +53,52 @@ runs:
         path: |
             *
 
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: autocoder-artifact
-          path: ./autocoder-artifact
+    - name: Download Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: autocoder-artifact
+        path: ./autocoder-artifact
      
-      - name: List Files Recursively
-        run: |
-          echo "Listing all files in autocoder-artifact directory:"
-          ls -R autocoder-artifact/
+    - name: List Files Recursively
+      run: |
+        echo "Listing all files in autocoder-artifact directory:"
+        ls -R autocoder-artifact/
 
-      - name: Copy Generated Code to a dedicated folder
-        run: |
-          mkdir -p autocoder-generated
-          cp -R autocoder-artifact/* autocoder-generated/
+    - name: Copy Generated Code to a dedicated folder
+      run: |
+        mkdir -p autocoder-generated
+        cp -R autocoder-artifact/* autocoder-generated/
 
-      - name: Debug - List Copied Files in autocoder-generated
-        run: ls -R autocoder-generated
+    - name: Debug - List Copied Files in autocoder-generated
+      run: ls -R autocoder-generated
 
-      - name: Force a change for PR detection
-        run: |
-          echo "// Force change: $(date)" > autocoder-generated/force_change.txt
+    - name: Force a change for PR detection
+      run: |
+        echo "// Force change: $(date)" > autocoder-generated/force_change.txt
 
-      - name: Configure Git
-        run: |
-          git config --global user.name "autocoder-bot"
-          git config --global user.email "actions@github.com"
+    - name: Configure Git
+      run: |
+        git config --global user.name "autocoder-bot"
+        git config --global user.email "actions@github.com"
 
-      - name: Debug Git Status Before Commit
-        run: |
-          git status
+    - name: Debug Git Status Before Commit
+      run: |
+        git status
 
-      - name: Commit Generated Code
-        run: |
-          git config --local user.name "autocoder-bot"
-          git config --local user.email "actions@github.com"
-          git add ./autocoder-artifact
-          git commit -m "Add generated code from ChatGPT"
+    - name: Commit Generated Code
+      run: |
+        git config --local user.name "autocoder-bot"
+        git config --local user.email "actions@github.com"
+        git add ./autocoder-artifact
+        git commit -m "Add generated code from ChatGPT"
       
-      - name: Debug - Final Git Status
-        run: git status
+    - name: Debug - Final Git Status
+      run: git status
       
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          labels: "autocoder-bot"
-          author: autocoder-bot <actions@github.com>
-          title: "PR to issue #${{ env.ISSUE_NUMBER }}"
-          branch: autocoder-branch-${{ env.ISSUE_NUMBER }}
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        labels: "autocoder-bot"
+        author: autocoder-bot <actions@github.com>
+        title: "PR to issue #${{ env.ISSUE_NUMBER }}"
+        branch: autocoder-branch-${{ env.ISSUE_NUMBER }}
