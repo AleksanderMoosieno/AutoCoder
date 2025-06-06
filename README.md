@@ -11,8 +11,8 @@ Go to .github/workflows/main.yml
 ## Environment Variables
 You may need to set the following environment variables to use the action effectively:
 
-TOKEN: This should be set to ${{ secrets.TOKEN }}.
-API: The API key for accessing OpenAI’s ChatGPT, set to ${{ OPENAI_API }}.
+TOKEN: This should be set to secrets.TOKEN....
+API: The API key for accessing OpenAI’s ChatGPT, set to secrets.API
 Required Permissions
 This action requires the following permissions to function properly:
 
