@@ -83,11 +83,9 @@ jobs:
         run: git status
       
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v6
         with:
-          title: "Autocoder generated code for issue #${{ github.event.issue.number }}"
-          branch: autocoder-branch-${{ github.event.issue.number }}
-          base: main
-          labels: autocoder-bot
-          author: "autocoder-bot <actions@github.com>"
-          committer: "autocoder-bot <actions@github.com>"
+          labels: "autocoder-bot"
+          author: autocoder-bot <actions@github.com>
+          title: "PR to issue #${{ inputs.ISSUE_NUMBER }}"
+          branch: autocoder-branch-${{ inputs.ISSUE_NUMBER }}
