@@ -28,7 +28,7 @@ jobs:
       - name: Commit generated files
         run: |
           git add .
-          git commit -m "AutoCode: Generated files for issue ${{ github.event.issue.labels.*.name }}
+          git commit -m "AutoCode: Generated files for issue ${{ github.event.issue.labels.*.name }}"
       
       - name: Make Script Executable
         run: chmod +x ./scripts/script.sh
