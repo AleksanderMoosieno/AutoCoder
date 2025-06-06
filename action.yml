@@ -25,6 +25,9 @@ inputs:
     description: 'The path to the script that interacts with ChatGPT and generates code.'
     required: false
     default: scripts/script.sh
+  LABEL:
+    description: 'Allows users to customize the label that triggers the action.'
+    required: true
 
 outputs:
   pull_request_url:
@@ -48,7 +51,7 @@ runs:
 
     - name: Generate Code with ChatGPT
       id: generate_code
-      run:  ${{ github.action_path }}/${{ inputs.SCRIPT_PATH }} ${{ inputs.GITHUB_TOKEN }} ${{ inputs.REPOSITORY }} ${{ inputs.ISSUE_NUMBER }} ${{ inputs.OPENAI_API_KEY }}
+      run:  ${{ github.action_path }}/${{ inputs.SCRIPT_PATH }} ${{ secrets.TOKEN }} ${{ inputs.REPOSITORY }} ${{ inputs.ISSUE_NUMBER }} ${{ secrets.API }}
       shell: bash
 
     - name: Upload Artifact
