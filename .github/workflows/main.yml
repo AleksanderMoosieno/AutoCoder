@@ -83,7 +83,7 @@ jobs:
         run: git status
       
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           title: "Autocoder generated code for issue #${{ github.event.issue.number }}"
           branch: autocoder-branch-${{ github.event.issue.number }}
